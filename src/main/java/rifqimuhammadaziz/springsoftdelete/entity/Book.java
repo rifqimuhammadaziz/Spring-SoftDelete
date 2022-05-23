@@ -1,14 +1,17 @@
 package rifqimuhammadaziz.springsoftdelete.entity;
 
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "books")
-@SQLDelete(sql = "UPDATE books SET is_deleted = TRUE WHERE id = ?") // Override deleteById to soft delete
-@Where(clause = "is_deleted = false") // Only get data where is_deleted = false
+@SQLDelete(sql = "UPDATE books SET deleted = TRUE WHERE id = ?") // Override deleteById to soft delete
+// @Where(clause = "is_deleted = false") // Only get data where is_deleted = false
+@FilterDef(name = "deletedBookFilter", parameters = @ParamDef(name = "isDeleted", type = "boolean"))
+@Filter(name = "deletedBookFilter", condition = "deleted = :isDeleted")
 public class Book {
 
     @Id
@@ -22,7 +25,7 @@ public class Book {
     private String price;
 
     // Default value is False (False = not deleted | True = deleted)
-    private boolean isDeleted = Boolean.FALSE;
+    private boolean deleted = Boolean.FALSE;
 
     public Long getId() {
         return id;
@@ -56,11 +59,12 @@ public class Book {
         this.price = price;
     }
 
+
     public boolean isDeleted() {
-        return isDeleted;
+        return deleted;
     }
 
     public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
+        this.deleted = deleted;
     }
 }
